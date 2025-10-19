@@ -1,6 +1,7 @@
 .DS_Store
 
 progress-docs/*
+steel-resources/*
 
 .claude
 CLAUDE.md
