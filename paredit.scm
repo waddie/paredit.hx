@@ -4,6 +4,7 @@
 ;; It provides setup and configuration for paredit operations.
 
 (require "helix/editor.scm")
+(require "helix/commands.scm")
 (require "cogs/paredit/core/parser.scm")
 (require "cogs/paredit/core/range.scm")
 (require "cogs/paredit/core/rope-utils.scm")
@@ -11,17 +12,52 @@
 (require "cogs/paredit/core/element.scm")
 (require "cogs/paredit/lang/clojure.scm")
 
-(provide setup-paredit
-         paredit-enabled?
-         get-paredit-config
-         set-paredit-config!
+;; Phase 2: Operations, motions, and text objects
+(require "cogs/paredit/operations/slurp.scm")
+(require "cogs/paredit/operations/barf.scm")
+(require "cogs/paredit/motions/element.scm")
+(require "cogs/paredit/motions/form.scm")
+(require "cogs/paredit/text-objects/selections.scm")
+
+(provide paredit-version
+         paredit-info
+         ;; Not obviuosly useful
+         ; setup-paredit
+         ; paredit-enabled?
+         ; get-paredit-config
+         ; set-paredit-config!
 
          ;; Re-export core functionality for convenience
          find-matching-paren
          find-enclosing-form
          find-current-element
          find-next-element
-         find-prev-element)
+         find-prev-element
+
+         ;; Operations
+         slurp-forward
+         slurp-backward
+         barf-forward
+         barf-backward
+
+         ;; Text objects
+         select-around-form
+         select-in-form
+         ;; No obvious use for these
+         ; select-around-element
+         ; select-element
+
+         ;; Element motions
+         move-to-next-element-head
+         move-to-prev-element-head
+         move-to-next-element-tail
+         move-to-prev-element-tail
+
+         ;; Form motions
+         move-to-parent-form-start
+         move-to-parent-form-end
+         move-to-next-form-start
+         move-to-prev-form-start)
 
 ;; ============================================================================
 ;; Configuration
@@ -30,7 +66,7 @@
 ;; Default paredit configuration
 (define *paredit-config*
   (hash 'enabled-languages
-        '("clojure" "scheme" "lisp" "racket" "fennel")
+        '("clojure" "scheme" "elisp" "common-lisp" "fennel")
         'cursor-behavior
         'auto ; 'auto, 'remain, or 'follow
         'auto-indent
@@ -92,14 +128,7 @@
      - enabled: Boolean, global enable/disable"
 
   ;; Merge user config
-  (merge-config! user-config)
-
-  ;; Log successful initialization
-  (displayln "paredit.hx initialized")
-  (displayln (string-append "  Enabled for: "
-                            (list->string (get-paredit-config #:key 'enabled-languages))))
-  (displayln (string-append "  Cursor behavior: "
-                            (symbol->string (get-paredit-config #:key 'cursor-behavior)))))
+  (merge-config! user-config))
 
 ;; ============================================================================
 ;; Utility Functions
@@ -107,11 +136,11 @@
 
 (define (log-paredit-info message)
   "Log a paredit informational message."
-  (displayln (string-append "[paredit] " message)))
+  (echo (string-append "[paredit] " message)))
 
 (define (log-paredit-error message)
   "Log a paredit error message."
-  (displayln (string-append "[paredit ERROR] " message)))
+  (echo (string-append "[paredit ERROR] " message)))
 
 (define (paredit-operation-wrapper operation-fn operation-name)
   "Wrapper for paredit operations that checks if paredit is enabled
@@ -130,7 +159,7 @@
 ;; Version and Info
 ;; ============================================================================
 
-(define *paredit-version* "0.1.0")
+(define *paredit-version* "0.1.0-alpha")
 
 (define (paredit-version)
   "Get the paredit version string."
@@ -138,10 +167,90 @@
 
 (define (paredit-info)
   "Display paredit information."
-  (displayln (string-append "paredit.hx v" *paredit-version*))
-  (displayln "Structural editing for Lisp languages in Helix")
-  (displayln "")
-  (displayln "Status:")
-  (displayln (string-append "  Enabled: " (if (get-paredit-config #:key 'enabled) "yes" "no")))
-  (displayln (string-append "  Current language: " (or (get-current-language) "unknown")))
-  (displayln (string-append "  Active for current buffer: " (if (paredit-enabled?) "yes" "no"))))
+  (echo (string-append "paredit.hx v"
+                       *paredit-version*
+                       " | Enabled: "
+                       (if (get-paredit-config #:key 'enabled) "yes" "no")
+                       " | Language: "
+                       (or (get-current-language) "unknown")
+                       " | Active: "
+                       (if (paredit-enabled?) "yes" "no"))))
+
+;; ============================================================================
+;; Example Keybindings
+;; ============================================================================
+;;
+;; Below are example keybindings for paredit operations.
+;; To use them, add these to your Helix config.toml or init.scm:
+;;
+;; Example config.toml:
+;;   [keys.normal]
+;;   ">" = { ")" = ":run-steel paredit/slurp-forward", ... }
+;;   "<" = { ")" = ":run-steel paredit/barf-forward", ... }
+;;
+;; Example init.scm:
+;;   (require "paredit/paredit.scm")
+;;   (setup-paredit)
+;;
+;;   ;; Define keybindings
+;;   (define paredit-keybindings
+;;     (hash
+;;       ;; Normal mode
+;;       "normal" (hash
+;;         ">" (hash
+;;           ")" slurp-forward       ; >) - slurp next element into form
+;;           "(" barf-backward       ; >( - barf first element out
+;;           "e" 'drag-element-fwd   ; >e - drag element forward (Phase 3)
+;;           "f" 'drag-form-fwd)     ; >f - drag form forward (Phase 3)
+;;         "<" (hash
+;;           ")" barf-forward        ; <) - barf last element out
+;;           "(" slurp-backward      ; <( - slurp previous element in
+;;           "e" 'drag-element-back  ; <e - drag element backward (Phase 3)
+;;           "f" 'drag-form-back)    ; <f - drag form backward (Phase 3)
+;;         "W" move-to-next-element-head      ; W - next element start
+;;         "B" move-to-prev-element-head      ; B - prev element start
+;;         "E" move-to-next-element-tail      ; E - next element end
+;;         "(" move-to-parent-form-start      ; ( - parent form start
+;;         ")" move-to-parent-form-end)       ; ) - parent form end
+;;
+;;       ;; Select mode
+;;       "select" (hash
+;;         "a" (hash
+;;           "f" select-around-form    ; af - select around form (with parens)
+;;           "e" select-around-element) ; ae - select element
+;;         "i" (hash
+;;           "f" select-in-form        ; if - select in form (without parens)
+;;           "e" select-element))))    ; ie - select element
+;;
+;; ============================================================================
+;; Recommended Keybindings Summary
+;; ============================================================================
+;;
+;; Operations:
+;;   >)  - slurp-forward      Pull next element into form
+;;   <(  - slurp-backward     Pull previous element into form
+;;   <)  - barf-forward       Push last element out of form
+;;   >(  - barf-backward      Push first element out of form
+;;
+;; Element Motions:
+;;   W   - Next element start
+;;   B   - Previous element start
+;;   E   - Next element end
+;;   gE  - Previous element end
+;;
+;; Form Motions:
+;;   (   - Parent form start
+;;   )   - Parent form end
+;;
+;; Text Objects:
+;;   af  - Around form (including parens)
+;;   if  - In form (excluding parens)
+;;   ae  - Around element
+;;   ie  - In element (same as ae)
+;;
+;; Usage with verbs:
+;;   daf - Delete around form
+;;   cif - Change in form
+;;   yae - Yank element
+;;   vaf - Select around form
+;;

@@ -10,6 +10,9 @@
          rope-line-at
          rope-len
          rope-line-count
+         rope-delete
+         rope-insert
+         char->string
          is-whitespace?
          is-paren?
          is-open-paren?
@@ -46,6 +49,29 @@
 (define (rope-line-count rope)
   "Get the number of lines in the rope."
   (text.rope-len-lines rope))
+
+(define (rope-delete rope start end)
+  "Delete characters from rope between start and end positions.
+   Returns a new rope with the deletion applied."
+  (let ([before (rope-substring rope 0 start)]
+        [after (rope-substring rope end (rope-len rope))])
+    (string-append before after)))
+
+(define (rope-insert rope pos text)
+  "Insert text into rope at position.
+   Returns a new rope with the insertion applied."
+  (let ([before (rope-substring rope 0 pos)]
+        [after (rope-substring rope pos (rope-len rope))])
+    (string-append before text after)))
+
+;; ============================================================================
+;; String Conversion
+;; ============================================================================
+
+(define (char->string ch)
+  "Convert a character to a string.
+   In Steel Scheme, use the 'string' function."
+  (string ch))
 
 ;; ============================================================================
 ;; Character Classification

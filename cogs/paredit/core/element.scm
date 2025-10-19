@@ -11,6 +11,8 @@
          find-next-element
          find-prev-element
          element-at-pos
+         find-element-start
+         find-element-end
          skip-whitespace-forward
          skip-whitespace-backward
          skip-whitespace-and-comments-forward

@@ -63,7 +63,9 @@
         [end (if (range? range)
                  (range-end range)
                  (cadr range))])
-    (helix.static.set-current-selection-object! (list start end))))
+    ;; Create a Helix Range object and convert to Selection
+    (let ([helix-range (helix.static.range start end)])
+      (helix.static.set-current-selection-object! (helix.static.range->selection helix-range)))))
 
 (define (select-range! range)
   "Select the given range. Alias for set-selection!."
@@ -71,7 +73,9 @@
 
 (define (move-cursor-to! pos)
   "Move the cursor to the given position."
-  (set-selection! (make-range pos pos)))
+  ;; Create a Helix Range object with both anchor and head at the same position
+  (let ([helix-range (helix.static.range pos pos)])
+    (helix.static.set-current-selection-object! (helix.static.range->selection helix-range))))
 
 (define (replace-selection! text)
   "Replace the current selection with the given text."
