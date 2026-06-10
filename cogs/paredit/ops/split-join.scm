@@ -30,8 +30,14 @@
     (let* ([r (node->char-range rope node)]
            [s (car r)]
            [e (cdr r)])
-      ;; need at least the two surrounding quote characters
-      (if (>= (- e s) 2)
+      ;; Treat as a splittable/joinable string only when it is delimited by a
+      ;; matching pair of double quotes (open = first char, close = last char).
+      ;; Guards against string node-kinds that are NOT "…"-quoted — e.g. Fennel's
+      ;; keywords (:foo), which share the `string` node kind but have no
+      ;; symmetric delimiters. Such nodes fall through to #f, so split/join bail.
+      (if (and (>= (- e s) 2)
+           (equal? (string-ref (char-range-text rope s (+ s 1)) 0) #\")
+           (equal? (string-ref (char-range-text rope (- e 1) e) 0) #\"))
         (cons (cons s (+ s 1)) (cons (- e 1) e))
         #f))
     (get-form-edges rope node)))

@@ -40,8 +40,11 @@
       "unquote_form")
     ;; comment-kinds (none captured upstream; rely on extra? at runtime)
     '()
-    ;; string-kinds
-    '("string")
+    ;; string-kinds — `string` is polymorphic in this grammar (covers both
+    ;; "…" strings and :colon strings); split/join guards on actual " delimiters,
+    ;; so keyword-ish strings are safely ignored. `string_binding`/`docstring`
+    ;; are the "…"-quoted string in binding/doc positions.
+    '("string" "string_binding" "docstring")
     ;; whitespace — Fennel treats commas as whitespace
     (list #\space #\tab #\newline #\,)
     ;; pairs-query-src
