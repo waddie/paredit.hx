@@ -45,6 +45,9 @@
       "par_arr_lit")
     ;; comment-kinds
     '("comment")
+    ;; string-kinds (only the "…"-quoted form; long_str_lit uses variable-length
+    ;; backtick delimiters that the single-char-quote split/join logic can't handle)
+    '("str_lit")
     ;; whitespace
     (list #\space #\tab #\newline)
     ;; pairs-query-src

@@ -15,6 +15,8 @@
     '("list_lit" "loop_macro" "defun")
     ;; comment-kinds (none captured upstream; rely on extra? at runtime)
     '()
+    ;; string-kinds
+    '("str_lit")
     ;; whitespace
     (list #\space #\tab #\newline)
     ;; pairs-query-src

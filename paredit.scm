@@ -16,6 +16,7 @@
 (require "cogs/paredit/ops/drag.scm")
 (require "cogs/paredit/ops/raise.scm")
 (require "cogs/paredit/ops/unwrap.scm")
+(require "cogs/paredit/ops/split-join.scm")
 
 ;; NB: structural motions and text-object selections are deliberately NOT
 ;; provided — Helix's builtin tree-sitter commands already cover them (expand/
@@ -41,6 +42,8 @@
   drag-form-forward
   drag-pair-backward
   drag-pair-forward
+  paredit-join
+  paredit-split
   raise-element
   raise-form
   slurp-backward

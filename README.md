@@ -1,8 +1,8 @@
 # paredit.hx
 
 Structural editing for Lisp languages in Helix, written in Steel Scheme. It uses
-Helix’s tree-sitter API to provide slurp, barf, raise, splice, and drag
-operations for Clojure, Common Lisp, Fennel, Janet and Scheme.
+Helix’s tree-sitter API to provide slurp, barf, raise, splice, drag, split, and
+join operations for Clojure, Common Lisp, Fennel, Janet and Scheme.
 
 paredit.hx implements only the structural edits Helix does not already provide.
 Navigation, selection, wrapping, and pair matching are left to Helix’s built-in
@@ -34,25 +34,35 @@ The commands listed below are then available as typable commands, for example
 
 ## Commands
 
-| Command                  | Effect                                                   |
-| ------------------------ | -------------------------------------------------------- |
-| `:barf-backward`         | Eject the first element out of the current form          |
-| `:barf-forward`          | Eject the last element out of the current form           |
-| `:drag-element-backward` | Swap the current element with the previous sibling       |
-| `:drag-element-forward`  | Swap the current element with the next sibling           |
-| `:drag-form-backward`    | Swap the enclosing form with the previous sibling        |
-| `:drag-form-forward`     | Swap the enclosing form with the next sibling            |
-| `:drag-pair-backward`    | Swap the current key/value pair with the previous pair   |
-| `:drag-pair-forward`     | Swap the current key/value pair with the next pair       |
-| `:raise-element`         | Replace the enclosing form with the current element      |
-| `:raise-form`            | Replace the enclosing form with the current form         |
-| `:slurp-backward`        | Extend the current form leftward over the prev element   |
-| `:slurp-forward`         | Extend the current form rightward over the next element  |
-| `:splice-form`           | Remove the enclosing form’s delimiters, keeping contents |
+| Command                  | Effect                                                          |
+| ------------------------ | --------------------------------------------------------------- |
+| `:barf-backward`         | Eject the first element out of the current form                 |
+| `:barf-forward`          | Eject the last element out of the current form                  |
+| `:drag-element-backward` | Swap the current element with the previous sibling              |
+| `:drag-element-forward`  | Swap the current element with the next sibling                  |
+| `:drag-form-backward`    | Swap the enclosing form with the previous sibling               |
+| `:drag-form-forward`     | Swap the enclosing form with the next sibling                   |
+| `:drag-pair-backward`    | Swap the current key/value pair with the previous pair          |
+| `:drag-pair-forward`     | Swap the current key/value pair with the next pair              |
+| `:paredit-join`          | Join the form or string before the cursor with the one after it |
+| `:paredit-split`         | Split the form or string at the cursor into two                 |
+| `:raise-element`         | Replace the enclosing form with the current element             |
+| `:raise-form`            | Replace the enclosing form with the current form                |
+| `:slurp-backward`        | Extend the current form leftward over the prev element          |
+| `:slurp-forward`         | Extend the current form rightward over the next element         |
+| `:splice-form`           | Remove the enclosing form’s delimiters, keeping contents        |
 
 Which element or form a command acts on is decided by the tree-sitter node under
 the cursor. With the cursor on a symbol, an element operation acts on that
 symbol; with the cursor on an opening delimiter, it acts on the whole form.
+
+`:paredit-split` cuts the enclosing form (or string) at the cursor into two:
+`(a| b)` becomes `(a) (b)`, and `"a| b"` becomes `"a" "b"`. The cut falls at the
+exact cursor position, mid-token included. `:paredit-join` is the inverse, merging
+the form (or string) before the cursor with the one after it: `(a)| (b)` becomes
+`(a b)`. Joining forms of different bracket types adopts the left form’s brackets,
+so `(a) [b]` becomes `(a b)`. Inside a string, whitespace is treated as content.
+Split keeps it and join never inserts it.
 
 ## Supported languages
 
@@ -78,8 +88,8 @@ The bindings below group the operations by direction under two sub-menus:
 `<space>>` for the forward operations and `<space><` for the backward ones for
 both `normal` and `select` mode.
 
-The direction-agnostic operations (`raise-form`, `raise-element`, `splice-form`)
-appear under both sub-menus.
+The direction-agnostic operations (`raise-form`, `raise-element`, `splice-form`,
+`paredit-split`, `paredit-join`) appear under both sub-menus.
 
 In `init.scm`, after `(require "paredit.scm")`:
 
@@ -92,7 +102,9 @@ In `init.scm`, after `(require "paredit.scm")`:
                           (p ":drag-pair-forward")
                           (r ":raise-form")
                           (R ":raise-element")
-                          (x ":splice-form"))))
+                          (x ":splice-form")
+                          (S ":paredit-split")
+                          (j ":paredit-join"))))
         (select (space (> (s ":slurp-forward")
                           (b ":barf-forward")
                           (e ":drag-element-forward")
@@ -100,7 +112,9 @@ In `init.scm`, after `(require "paredit.scm")`:
                           (p ":drag-pair-forward")
                           (r ":raise-form")
                           (R ":raise-element")
-                          (x ":splice-form")))))
+                          (x ":splice-form")
+                          (S ":paredit-split")
+                          (j ":paredit-join")))))
 (keymap (global)
         (normal (space (< (s ":slurp-backward")
                           (b ":barf-backward")
@@ -109,7 +123,9 @@ In `init.scm`, after `(require "paredit.scm")`:
                           (p ":drag-pair-backward")
                           (r ":raise-form")
                           (R ":raise-element")
-                          (x ":splice-form"))))
+                          (x ":splice-form")
+                          (S ":paredit-split")
+                          (j ":paredit-join"))))
         (select (space (< (s ":slurp-backward")
                           (b ":barf-backward")
                           (e ":drag-element-backward")
@@ -117,12 +133,15 @@ In `init.scm`, after `(require "paredit.scm")`:
                           (p ":drag-pair-backward")
                           (r ":raise-form")
                           (R ":raise-element")
-                          (x ":splice-form")))))
+                          (x ":splice-form")
+                          (S ":paredit-split")
+                          (j ":paredit-join")))))
 ```
 
 So `<space>>s` slurps forward and `<space><s` slurps backward. The sub-keys are
 `s` slurp, `b` barf, `e` drag element, `f` drag form, `p` drag pair, `r` raise
-form, `R` raise element, `x` splice.
+form, `R` raise element, `x` splice, `S` split, `j` join. Split and join are
+direction-agnostic, so they behave the same under either sub-menu.
 
 ## Relationship to Helix built-ins
 

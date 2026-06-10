@@ -17,6 +17,7 @@
   Language-id
   Language-form-kinds
   Language-comment-kinds
+  Language-string-kinds
   Language-whitespace
   Language-pairs-query-src
   register-language!
@@ -24,8 +25,10 @@
   language-for-doc
   form?
   comment?
+  str?
   form-kind?
   comment-kind?
+  string-kind?
   ws-char?
   trim-leading-ws
   trim-trailing-ws)
@@ -35,9 +38,10 @@
 ;; * id              : string?            Helix language id (editor-document->language)
 ;; * form-kinds      : (listof string?)   node kinds treated as forms
 ;; * comment-kinds   : (listof string?)   node kinds treated as comments
+;; * string-kinds    : (listof string?)   node kinds treated as string literals
 ;; * whitespace      : (listof char?)     element separators (e.g. #\space, #\,)
 ;; * pairs-query-src : (or string? #f)    paredit/pairs source, or #f if none
-(struct Language (id form-kinds comment-kinds whitespace pairs-query-src)
+(struct Language (id form-kinds comment-kinds string-kinds whitespace pairs-query-src)
   #:transparent)
 
 ;; id (string) -> Language
@@ -76,6 +80,11 @@
   (member kind (Language-comment-kinds lang)))
 
 ;;@doc
+;; Is `kind` (a string) a string-literal kind in `lang`?
+(define (string-kind? lang kind)
+  (member kind (Language-string-kinds lang)))
+
+;;@doc
 ;; Is `node` a form in `lang`?
 (define (form? lang node)
   (and (form-kind? lang (tsnode-kind node)) #t))
@@ -86,6 +95,12 @@
 (define (comment? lang node)
   (or (tsnode-extra? node)
     (and (comment-kind? lang (tsnode-kind node)) #t)))
+
+;;@doc
+;; Is `node` a string literal in `lang`? (Named `str?` to avoid shadowing the
+;; Steel builtin `string?`.)
+(define (str? lang node)
+  (and (string-kind? lang (tsnode-kind node)) #t))
 
 ;;;; ---------------------------------------------------------------------------
 ;;;; Whitespace helpers (parameterised by the language's whitespace set, so e.g.

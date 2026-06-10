@@ -60,6 +60,8 @@
       "ns_map_lit")
     ;; comment-kinds
     '("comment")
+    ;; string-kinds
+    '("str_lit")
     ;; whitespace — Clojure treats commas as whitespace
     (list #\space #\tab #\newline #\,)
     ;; pairs-query-src

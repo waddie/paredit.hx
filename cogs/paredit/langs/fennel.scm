@@ -40,6 +40,8 @@
       "unquote_form")
     ;; comment-kinds (none captured upstream; rely on extra? at runtime)
     '()
+    ;; string-kinds
+    '("string")
     ;; whitespace — Fennel treats commas as whitespace
     (list #\space #\tab #\newline #\,)
     ;; pairs-query-src

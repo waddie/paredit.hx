@@ -9,6 +9,8 @@
     '("list" "vector" "byte_vector")
     ;; comment-kinds
     '("comment" "block_comment")
+    ;; string-kinds
+    '("string")
     ;; whitespace
     (list #\space #\tab #\newline)
     ;; pairs-query-src
