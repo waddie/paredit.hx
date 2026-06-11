@@ -2,11 +2,15 @@
 
 Structural editing for Lisp languages in Helix, written in Steel Scheme. It uses
 Helix’s tree-sitter API to provide slurp, barf, raise, splice, drag, split, and
-join operations for Clojure, Common Lisp, Fennel, Janet and Scheme.
+join operations for Clojure, Common Lisp, Fennel, Janet, and Scheme.
 
 paredit.hx implements only the structural edits Helix does not already provide.
 Navigation, selection, wrapping, and pair matching are left to Helix’s built-in
 tree-sitter commands (see “Relationship to Helix built-ins” below).
+
+## Demo
+
+![An asciinema recording of slurping and barfing Clojure forms in Helix](https://github.com/waddie/paredit.hx/blob/main/images/hx-barf.gif?raw=true)
 
 ## Installation
 
