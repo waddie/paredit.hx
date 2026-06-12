@@ -1,9 +1,9 @@
 ;; ops/split-join.scm — split one form/string into two, and join two into one.
 
-(require "cogs/paredit/ts.scm")
-(require "cogs/paredit/lang.scm")
-(require "cogs/paredit/traversal.scm")
-(require "cogs/paredit/edit.scm")
+(require "../ts.scm")
+(require "../lang.scm")
+(require "../traversal.scm")
+(require "../edit.scm")
 (require "helix/misc.scm") ; set-status!, cursor-position
 
 (provide paredit-split

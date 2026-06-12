@@ -1,22 +1,22 @@
 ;; paredit.scm — structural editing for Lisp languages in Helix.
 
 ;; --- Language definitions (each registers itself with the lang registry) ---
-(require "cogs/paredit/langs/clojure.scm")
-(require "cogs/paredit/langs/scheme.scm")
-(require "cogs/paredit/langs/fennel.scm")
-(require "cogs/paredit/langs/janet.scm")
-(require "cogs/paredit/langs/commonlisp.scm")
+(require "src/langs/clojure.scm")
+(require "src/langs/scheme.scm")
+(require "src/langs/fennel.scm")
+(require "src/langs/janet.scm")
+(require "src/langs/commonlisp.scm")
 
 ;; --- Configuration ---
-(require "cogs/paredit/config.scm")
+(require "src/config.scm")
 
 ;; --- Operations ---
-(require "cogs/paredit/ops/slurp.scm")
-(require "cogs/paredit/ops/barf.scm")
-(require "cogs/paredit/ops/drag.scm")
-(require "cogs/paredit/ops/raise.scm")
-(require "cogs/paredit/ops/unwrap.scm")
-(require "cogs/paredit/ops/split-join.scm")
+(require "src/ops/slurp.scm")
+(require "src/ops/barf.scm")
+(require "src/ops/drag.scm")
+(require "src/ops/raise.scm")
+(require "src/ops/unwrap.scm")
+(require "src/ops/split-join.scm")
 
 ;; NB: structural motions and text-object selections are deliberately NOT
 ;; provided — Helix's builtin tree-sitter commands already cover them (expand/
@@ -24,7 +24,7 @@
 ;; mm). paredit.hx implements only the structural EDITS Helix lacks.
 
 ;; --- Diagnostics (foundation smoke test) ---
-(require "cogs/paredit/inspect.scm")
+(require "src/inspect.scm")
 
 (provide
   ;; diagnostics

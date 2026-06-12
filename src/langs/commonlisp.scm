@@ -7,7 +7,7 @@
 ;; kinds the grammar lifts out of a wrapping list_lit. Common Lisp has no pairs
 ;; query upstream.
 
-(require "cogs/paredit/lang.scm")
+(require "../lang.scm")
 
 (register-language!
   (Language "common-lisp"

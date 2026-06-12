@@ -6,8 +6,8 @@
 ;;   auto   : keep it in place unless the moved edge swept past it (leaving it
 ;;            outside the form), in which case snap it to the edge
 
-(require "cogs/paredit/edit.scm")
-(require "cogs/paredit/config.scm")
+(require "edit.scm")
+(require "config.scm")
 
 (provide reposition-cursor)
 

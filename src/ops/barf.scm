@@ -7,11 +7,11 @@
 ;; comments; move the form's closing/opening delimiter to just inside that
 ;; child's boundary (two edits). Then reposition the cursor.
 
-(require "cogs/paredit/ts.scm")
-(require "cogs/paredit/lang.scm")
-(require "cogs/paredit/traversal.scm")
-(require "cogs/paredit/edit.scm")
-(require "cogs/paredit/cursor.scm")
+(require "../ts.scm")
+(require "../lang.scm")
+(require "../traversal.scm")
+(require "../edit.scm")
+(require "../cursor.scm")
 (require "helix/misc.scm") ; set-status!, cursor-position
 
 (provide barf-forward

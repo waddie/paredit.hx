@@ -8,11 +8,11 @@
 ;; (comment-skipping); swap their text via edit.scm `swap-ranges`. The cursor
 ;; follows the moved node, preserving its offset within that node.
 
-(require "cogs/paredit/ts.scm")
-(require "cogs/paredit/lang.scm")
-(require "cogs/paredit/traversal.scm")
-(require "cogs/paredit/edit.scm")
-(require "cogs/paredit/pairs.scm")
+(require "../ts.scm")
+(require "../lang.scm")
+(require "../traversal.scm")
+(require "../edit.scm")
+(require "../pairs.scm")
 (require "helix/misc.scm") ; set-status!, cursor-position
 
 (provide drag-element-forward

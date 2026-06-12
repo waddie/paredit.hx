@@ -1,9 +1,9 @@
 ;; pairs.scm — pairwise structural detection (maps, let-bindings, cond, ...).
 
 (require "helix/treesitter.scm")
-(require "cogs/paredit/ts.scm")
-(require "cogs/paredit/lang.scm")
-(require "cogs/paredit/traversal.scm")
+(require "ts.scm")
+(require "lang.scm")
+(require "traversal.scm")
 
 (provide build-pairs-loader
   pair-nodes-in-range

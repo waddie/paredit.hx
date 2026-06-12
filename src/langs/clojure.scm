@@ -1,6 +1,6 @@
 ;; langs/clojure.scm — Clojure language definition.
 
-(require "cogs/paredit/lang.scm")
+(require "../lang.scm")
 
 (define clojure-pairs-query
   "(list_lit

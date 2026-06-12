@@ -1,7 +1,7 @@
 ;; traversal.scm — structural navigation over the tree.
 
-(require "cogs/paredit/ts.scm")
-(require "cogs/paredit/lang.scm")
+(require "ts.scm")
+(require "lang.scm")
 
 (provide named-siblings
   node-index

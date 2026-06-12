@@ -1,6 +1,6 @@
 ;; langs/janet.scm — Janet language definition.
 
-(require "cogs/paredit/lang.scm")
+(require "../lang.scm")
 
 (define janet-pairs-query
   "(par_tup_lit

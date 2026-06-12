@@ -14,24 +14,19 @@ tree-sitter commands (see “Relationship to Helix built-ins” below).
 
 ## Installation
 
-The plugin expects `paredit.scm` and the `cogs/paredit/` directory to sit under
-your Helix runtime configuration directory (for example `~/.config/helix/`), so
-that the module paths such as `cogs/paredit/ts.scm` resolve.
+### Forge (Steel package manager)
 
-1. Place the repository contents there, for example by symlinking:
+```sh
+forge pkg install --git https://github.com/waddie/paredit.hx
+```
 
-   ```sh
-   ln -s /path/to/paredit.hx/paredit.scm ~/.config/helix/paredit.scm
-   ln -s /path/to/paredit.hx/cogs/paredit ~/.config/helix/cogs/paredit
-   ```
+Then in your Steel init (`~/.config/helix/init.scm`):
 
-2. Load it from your Steel init (`~/.config/helix/init.scm`):
+```scheme
+(require "paredit.hx/paredit.scm")
+```
 
-   ```scheme
-   (require "paredit.scm")
-   ```
-
-3. Reload with `:config-reload`, or restart Helix.
+Reload with `:config-reload`, or restart Helix.
 
 The commands listed below are then available as typable commands, for example
 `:slurp-forward`.
@@ -95,7 +90,7 @@ both `normal` and `select` mode.
 The direction-agnostic operations (`raise-form`, `raise-element`, `splice-form`,
 `paredit-split`, `paredit-join`) appear under both sub-menus.
 
-In `init.scm`, after `(require "paredit.scm")`:
+In `init.scm`, after `(require "paredit.hx/paredit.scm")`:
 
 ```scheme
 (keymap (global)

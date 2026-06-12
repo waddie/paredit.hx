@@ -1,7 +1,7 @@
 ;; langs/scheme.scm — Scheme language definition.
 ;; Scheme has no pairs query upstream.
 
-(require "cogs/paredit/lang.scm")
+(require "../lang.scm")
 
 (register-language!
   (Language "scheme"

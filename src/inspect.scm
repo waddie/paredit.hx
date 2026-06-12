@@ -2,10 +2,10 @@
 ;;
 ;; These don't edit anything, they report through the statusline.
 
-(require "cogs/paredit/ts.scm")
-(require "cogs/paredit/lang.scm")
-(require "cogs/paredit/traversal.scm")
-(require "cogs/paredit/pairs.scm")
+(require "ts.scm")
+(require "lang.scm")
+(require "traversal.scm")
+(require "pairs.scm")
 (require "helix/misc.scm") ; set-status!
 (require "helix/editor.scm") ; set-register!
 

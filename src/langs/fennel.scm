@@ -1,7 +1,7 @@
 ;; langs/fennel.scm — Fennel language definition.
 ;; Fennel has no pairs query upstream.
 
-(require "cogs/paredit/lang.scm")
+(require "../lang.scm")
 
 (register-language!
   (Language "fennel"
