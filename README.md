@@ -84,11 +84,13 @@ does not match, so `drag-pair` on a Janet `let` falls back to an element drag.
 You can bind the provided commands in `init.scm` using the `keymap` form.
 
 The bindings below group the operations by direction under two sub-menus:
-`<space>>` for the forward operations and `<space><` for the backward ones for
+`<space>.>` for the forward operations and `<space>.<` for the backward ones for
 both `normal` and `select` mode.
 
 The direction-agnostic operations (`raise-form`, `raise-element`, `splice-form`,
 `paredit-split`, `paredit-join`) appear under both sub-menus.
+
+This gives you a Helix-ish pop-up menu experience while you’re learning the commands.
 
 In `init.scm`, after `(require "paredit.hx/paredit.scm")`:
 
@@ -137,10 +139,90 @@ In `init.scm`, after `(require "paredit.hx/paredit.scm")`:
                           (j ":paredit-join")))))
 ```
 
-So `<space>>s` slurps forward and `<space><s` slurps backward. The sub-keys are
+So `<space>.>.s` slurps forward and `<space>.<.s` slurps backward. The sub-keys are
 `s` slurp, `b` barf, `e` drag element, `f` drag form, `p` drag pair, `r` raise
 form, `R` raise element, `x` splice, `S` split, `j` join. Split and join are
 direction-agnostic, so they behave the same under either sub-menu.
+
+When you’re comfortable with the operations, you might want to eliminate some of
+those keystrokes, and make it possible to use without leaving insert mode.
+
+Personally, I’ve been using this:
+
+```scheme
+(keymap (global)
+  (normal ("C-."
+           (s ":slurp-forward")
+           (b ":barf-forward")
+           (e ":drag-element-forward")
+           (f ":drag-form-forward")
+           (p ":drag-pair-forward")
+           (r ":raise-form")
+           (R ":raise-element")
+           (x ":splice-form")
+           (S ":paredit-split")
+           (j ":paredit-join")))
+  (select ("C-."
+           (s ":slurp-forward")
+           (b ":barf-forward")
+           (e ":drag-element-forward")
+           (f ":drag-form-forward")
+           (p ":drag-pair-forward")
+           (r ":raise-form")
+           (R ":raise-element")
+           (x ":splice-form")
+           (S ":paredit-split")
+           (j ":paredit-join")))
+  (insert ("C-."
+           (s ":slurp-forward")
+           (b ":barf-forward")
+           (e ":drag-element-forward")
+           (f ":drag-form-forward")
+           (p ":drag-pair-forward")
+           (r ":raise-form")
+           (R ":raise-element")
+           (x ":splice-form")
+           (S ":paredit-split")
+           (j ":paredit-join"))))
+
+(keymap (global)
+  (normal ("C-,"
+           (s ":slurp-backward")
+           (b ":barf-backward")
+           (e ":drag-element-backward")
+           (f ":drag-form-backward")
+           (p ":drag-pair-backward")
+           (r ":raise-form")
+           (R ":raise-element")
+           (x ":splice-form")
+           (S ":paredit-split")
+           (j ":paredit-join")))
+  (select ("C-,"
+           (s ":slurp-backward")
+           (b ":barf-backward")
+           (e ":drag-element-backward")
+           (f ":drag-form-backward")
+           (p ":drag-pair-backward")
+           (r ":raise-form")
+           (R ":raise-element")
+           (x ":splice-form")
+           (S ":paredit-split")
+           (j ":paredit-join")))
+  (insert ("C-,"
+           (s ":slurp-backward")
+           (b ":barf-backward")
+           (e ":drag-element-backward")
+           (f ":drag-form-backward")
+           (p ":drag-pair-backward")
+           (r ":raise-form")
+           (R ":raise-element")
+           (x ":splice-form")
+           (S ":paredit-split")
+           (j ":paredit-join"))))
+```
+
+That is, `<C-,>` and `<C-.>` instead of the `<space>.<` and `<space>.>` sequences.
+I find this mnemonic and very comfortable on a Dvorak keyboard with control on Row 3.
 
 ## Relationship to Helix built-ins
 
