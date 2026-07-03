@@ -164,18 +164,26 @@
          [ctx (or enclosing (current-root))]
          [children (children-skipping-comments lang ctx)]
          [cur (cursor-position)]
-         [pair (or (pick-join-pair rope children cur)
-                (and enclosing
-                  (let ([sib (next-sibling-skipping-comments lang enclosing)])
-                    (and sib (cons enclosing sib)))))])
+         [straddled (pick-join-pair rope children cur)]
+         [fallback (and enclosing
+                    (let ([sib (next-sibling-skipping-comments lang enclosing)])
+                      (and sib (cons enclosing sib))))]
+         ;; prefer the straddled pair, but only if it is joinable — a gap
+         ;; between two atoms (e.g. `(a | b) (c d)`) falls through to joining
+         ;; `enclosing` with its sibling rather than erroring
+         [pair (cond
+                [(and straddled
+                    (joinable-same? lang (car straddled) (cdr straddled)))
+                  straddled]
+                [(and fallback
+                    (joinable-same? lang (car fallback) (cdr fallback)))
+                  fallback]
+                [else #f])])
     (cond
-      [(not pair) (set-status! "paredit: nothing to join")]
-      [else
-        (let ([left (car pair)]
-              [right (cdr pair)])
-          (if (joinable-same? lang left right)
-            (join-pair lang rope left right)
-            (set-status! "paredit: can only join two forms or two strings")))])))
+      [pair (join-pair lang rope (car pair) (cdr pair))]
+      [(or straddled fallback)
+        (set-status! "paredit: can only join two forms or two strings")]
+      [else (set-status! "paredit: nothing to join")])))
 
 ;; The adjacent (left . right) child pair straddling `cur`: left is the last
 ;; child ending at or before the cursor, right its following sibling. #f if there

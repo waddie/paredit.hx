@@ -53,28 +53,34 @@
                   [(null? children) (set-status! "paredit: nothing to barf")]
                   [else
                     (let* ([rope (current-rope)]
-                           [edges (get-form-edges rope form)]
-                           [open-end (cdr (car edges))]
-                           [close-range (cdr edges)]
-                           [close-start (car close-range)]
-                           [close-end (cdr close-range)]
-                           [close-text (char-range-text rope close-start close-end)]
-                           [last-child (last-of children)]
-                           [prev (prev-sibling-skipping-comments lang last-child)]
-                           ;; where the closing delimiter lands: after the previous
-                           ;; element, or right after the opening delimiter
-                           [anchor (if prev (node-end-char rope prev) open-end)]
-                           [middle-text (char-range-text rope anchor close-start)]
-                           ;; ensure the ejected element is separated from the delimiter
-                           [sep (if (starts-with-ws? lang middle-text) "" " ")]
-                           [cursor (cursor-position)]
-                           ;; the closing delimiter is re-written first at `anchor`,
-                           ;; so that is its new position
-                           [edge-char anchor])
-                      (apply-edits
-                        (list (make-edit anchor close-end
-                               (string-append close-text sep middle-text))))
-                      (reposition-cursor cursor edge-char #f))]))]))])))
+                           [edges (get-form-edges rope form)])
+                      (if (not edges)
+                        (set-status! "paredit: form has no delimiters")
+                        (barf-forward-edit lang rope children edges)))]))]))])))
+
+;; Emit the barf-forward edit once the form's children and edges are resolved.
+(define (barf-forward-edit lang rope children edges)
+  (let* ([open-end (cdr (car edges))]
+         [close-range (cdr edges)]
+         [close-start (car close-range)]
+         [close-end (cdr close-range)]
+         [close-text (char-range-text rope close-start close-end)]
+         [last-child (last-of children)]
+         [prev (prev-sibling-skipping-comments lang last-child)]
+         ;; where the closing delimiter lands: after the previous
+         ;; element, or right after the opening delimiter
+         [anchor (if prev (node-end-char rope prev) open-end)]
+         [middle-text (char-range-text rope anchor close-start)]
+         ;; ensure the ejected element is separated from the delimiter
+         [sep (if (starts-with-ws? lang middle-text) "" " ")]
+         [cursor (cursor-position)]
+         ;; the closing delimiter is re-written first at `anchor`,
+         ;; so that is its new position
+         [edge-char anchor])
+    (apply-edits
+      (list (make-edit anchor close-end
+             (string-append close-text sep middle-text))))
+    (reposition-cursor cursor edge-char #f)))
 
 ;; Shrink the enclosing form, ejecting its first element to the left.
 ;;
@@ -100,27 +106,33 @@
                   [(null? children) (set-status! "paredit: nothing to barf")]
                   [else
                     (let* ([rope (current-rope)]
-                           [edges (get-form-edges rope form)]
-                           [open-range (car edges)]
-                           [open-start (car open-range)]
-                           [open-end (cdr open-range)]
-                           [open-text (char-range-text rope open-start open-end)]
-                           [close-start (car (cdr edges))]
-                           [first-child (car children)]
-                           [next (next-sibling-skipping-comments lang first-child)]
-                           ;; where the opening delimiter lands: before the second
-                           ;; element, or right before the closing delimiter
-                           [anchor (if next (node-start-char rope next) close-start)]
-                           [middle-text (char-range-text rope open-end anchor)]
-                           ;; ensure the ejected element is separated from the delimiter
-                           [sep (if (ends-with-ws? lang middle-text) "" " ")]
-                           [cursor (cursor-position)]
-                           ;; the opening delimiter is re-written after middle-text
-                           ;; and the separator, so its new start sits past both
-                           [edge-char (+ open-start
-                                       (string-length middle-text)
-                                       (string-length sep))])
-                      (apply-edits
-                        (list (make-edit open-start anchor
-                               (string-append middle-text sep open-text))))
-                      (reposition-cursor cursor edge-char #t))]))]))])))
+                           [edges (get-form-edges rope form)])
+                      (if (not edges)
+                        (set-status! "paredit: form has no delimiters")
+                        (barf-backward-edit lang rope children edges)))]))]))])))
+
+;; Emit the barf-backward edit once the form's children and edges are resolved.
+(define (barf-backward-edit lang rope children edges)
+  (let* ([open-range (car edges)]
+         [open-start (car open-range)]
+         [open-end (cdr open-range)]
+         [open-text (char-range-text rope open-start open-end)]
+         [close-start (car (cdr edges))]
+         [first-child (car children)]
+         [next (next-sibling-skipping-comments lang first-child)]
+         ;; where the opening delimiter lands: before the second
+         ;; element, or right before the closing delimiter
+         [anchor (if next (node-start-char rope next) close-start)]
+         [middle-text (char-range-text rope open-end anchor)]
+         ;; ensure the ejected element is separated from the delimiter
+         [sep (if (ends-with-ws? lang middle-text) "" " ")]
+         [cursor (cursor-position)]
+         ;; the opening delimiter is re-written after middle-text
+         ;; and the separator, so its new start sits past both
+         [edge-char (+ open-start
+                     (string-length middle-text)
+                     (string-length sep))])
+    (apply-edits
+      (list (make-edit open-start anchor
+             (string-append middle-text sep open-text))))
+    (reposition-cursor cursor edge-char #t)))

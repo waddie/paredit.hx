@@ -11,9 +11,10 @@
   pairwise-nodes-for)
 
 ;;@doc
-;; Build a TSQueryLoader from `lang`'s pairs-query-src (compiling once), or #f
-;; if the language has no pairs query. The returned loader yields the compiled
-;; query only for `lang`'s id and #f for every other layer.
+;; Build a TSQueryLoader from `lang`'s pairs-query-src, or #f if the language
+;; has no pairs query. The returned loader yields the compiled query only for
+;; `lang`'s id and #f for every other layer. Compiles on every call — use
+;; `pairs-loader-for` for the cached loader.
 (define (build-pairs-loader lang)
   (let ([src (Language-pairs-query-src lang)])
     (if src
@@ -24,6 +25,18 @@
             (if (equal? layer-lang id) query #f))))
       #f)))
 
+;; Language-id -> loader (or #f), so each language's query compiles once.
+(define *pairs-loaders* (hash))
+
+;; The memoized pairs loader for `lang`: built on first use, cached thereafter.
+(define (pairs-loader-for lang)
+  (let ([id (Language-id lang)])
+    (if (hash-contains? *pairs-loaders* id)
+      (hash-ref *pairs-loaders* id)
+      (let ([loader (build-pairs-loader lang)])
+        (set! *pairs-loaders* (hash-insert *pairs-loaders* id loader))
+        loader))))
+
 ;;@doc
 ;; All @pair nodes within the char range [lo, hi) of the focused document, in
 ;; document order, or '() when the language has no pairs query / no matches.
@@ -31,7 +44,7 @@
 ;; capture flattens every @pair node across the range (TSMatch pitfall), so we
 ;; sort by start byte and let `pair-chunks` recover the key/value grouping.
 (define (pair-nodes-in-range lang lo-char hi-char)
-  (let ([loader (build-pairs-loader lang)])
+  (let ([loader (pairs-loader-for lang)])
     (if (not loader)
       '()
       (let* ([rope (current-rope)]

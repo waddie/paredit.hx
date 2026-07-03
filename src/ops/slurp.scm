@@ -46,26 +46,33 @@
                   [(not target) (set-status! "paredit: nothing to slurp")]
                   [else
                     (let* ([rope (current-rope)]
-                           [close-range (cdr (get-form-edges rope form))]
-                           [close-start (car close-range)]
-                           [close-end (cdr close-range)]
-                           [close-text (char-range-text rope close-start close-end)]
-                           [target-end (node-end-char rope target)]
-                           ;; text between the old delimiter and the slurped element's end
-                           [middle-text (char-range-text rope close-end target-end)]
-                           ;; an empty form has no element to separate from, so the
-                           ;; old form/element gap shouldn't become leading space
-                           [middle (if (null? (children-skipping-comments lang form))
-                                    (trim-leading-ws lang middle-text)
-                                    middle-text)]
-                           [cursor (cursor-position)]
-                           ;; the closing delimiter is re-appended after `middle`,
-                           ;; so its new start is close-start + (length of middle)
-                           [edge-char (+ close-start (string-length middle))])
-                      (apply-edits
-                        (list (make-edit close-start target-end
-                               (string-append middle close-text))))
-                      (reposition-cursor cursor edge-char #f))]))]))])))
+                           [edges (get-form-edges rope form)])
+                      (if (not edges)
+                        (set-status! "paredit: form has no delimiters")
+                        (slurp-forward-edit lang rope form target edges)))]))]))])))
+
+;; Emit the slurp-forward edit once the form, target, and edges are resolved.
+(define (slurp-forward-edit lang rope form target edges)
+  (let* ([close-range (cdr edges)]
+         [close-start (car close-range)]
+         [close-end (cdr close-range)]
+         [close-text (char-range-text rope close-start close-end)]
+         [target-end (node-end-char rope target)]
+         ;; text between the old delimiter and the slurped element's end
+         [middle-text (char-range-text rope close-end target-end)]
+         ;; an empty form has no element to separate from, so the
+         ;; old form/element gap shouldn't become leading space
+         [middle (if (null? (children-skipping-comments lang form))
+                  (trim-leading-ws lang middle-text)
+                  middle-text)]
+         [cursor (cursor-position)]
+         ;; the closing delimiter is re-appended after `middle`,
+         ;; so its new start is close-start + (length of middle)
+         [edge-char (+ close-start (string-length middle))])
+    (apply-edits
+      (list (make-edit close-start target-end
+             (string-append middle close-text))))
+    (reposition-cursor cursor edge-char #f)))
 
 ;; Extend the enclosing form leftward over the preceding element.
 ;;
@@ -90,22 +97,29 @@
                   [(not target) (set-status! "paredit: nothing to slurp")]
                   [else
                     (let* ([rope (current-rope)]
-                           [open-range (car (get-form-edges rope form))]
-                           [open-start (car open-range)]
-                           [open-end (cdr open-range)]
-                           [open-text (char-range-text rope open-start open-end)]
-                           [target-start (node-start-char rope target)]
-                           ;; text between the preceding element's start and the old delimiter
-                           [middle-text (char-range-text rope target-start open-start)]
-                           ;; an empty form has no element to separate from, so the
-                           ;; old form/element gap shouldn't become trailing space
-                           [middle (if (null? (children-skipping-comments lang form))
-                                    (trim-trailing-ws lang middle-text)
-                                    middle-text)]
-                           [cursor (cursor-position)]
-                           ;; the opening delimiter is re-prepended at target-start
-                           [edge-char target-start])
-                      (apply-edits
-                        (list (make-edit target-start open-end
-                               (string-append open-text middle))))
-                      (reposition-cursor cursor edge-char #t))]))]))])))
+                           [edges (get-form-edges rope form)])
+                      (if (not edges)
+                        (set-status! "paredit: form has no delimiters")
+                        (slurp-backward-edit lang rope form target edges)))]))]))])))
+
+;; Emit the slurp-backward edit once the form, target, and edges are resolved.
+(define (slurp-backward-edit lang rope form target edges)
+  (let* ([open-range (car edges)]
+         [open-start (car open-range)]
+         [open-end (cdr open-range)]
+         [open-text (char-range-text rope open-start open-end)]
+         [target-start (node-start-char rope target)]
+         ;; text between the preceding element's start and the old delimiter
+         [middle-text (char-range-text rope target-start open-start)]
+         ;; an empty form has no element to separate from, so the
+         ;; old form/element gap shouldn't become trailing space
+         [middle (if (null? (children-skipping-comments lang form))
+                  (trim-trailing-ws lang middle-text)
+                  middle-text)]
+         [cursor (cursor-position)]
+         ;; the opening delimiter is re-prepended at target-start
+         [edge-char target-start])
+    (apply-edits
+      (list (make-edit target-start open-end
+             (string-append open-text middle))))
+    (reposition-cursor cursor edge-char #t)))

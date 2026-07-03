@@ -107,11 +107,13 @@
 ;;;; Clojure's comma counts)
 ;;;; ---------------------------------------------------------------------------
 
-;;@doc Is char `c` whitespace in `lang`?
+;;@doc
+;; Is char `c` whitespace in `lang`?
 (define (ws-char? lang c)
   (and (member c (Language-whitespace lang)) #t))
 
-;;@doc `s` with leading `lang`-whitespace removed.
+;;@doc
+;; `s` with leading `lang`-whitespace removed.
 (define (trim-leading-ws lang s)
   (let ([len (string-length s)])
     (let loop ([i 0])
@@ -119,7 +121,8 @@
         (loop (+ i 1))
         (substring s i len)))))
 
-;;@doc `s` with trailing `lang`-whitespace removed.
+;;@doc
+;; `s` with trailing `lang`-whitespace removed.
 (define (trim-trailing-ws lang s)
   (let loop ([n (string-length s)])
     (if (and (> n 0) (ws-char? lang (string-ref s (- n 1))))
