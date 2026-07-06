@@ -2,7 +2,7 @@
 ;;
 ;; These don't edit anything, they report through the statusline.
 
-(require "ts.scm")
+(require "ts-utils.hx/ts.scm")
 (require "lang.scm")
 (require "traversal.scm")
 (require "pairs.scm")

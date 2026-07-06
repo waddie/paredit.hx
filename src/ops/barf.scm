@@ -7,7 +7,7 @@
 ;; comments; move the form's closing/opening delimiter to just inside that
 ;; child's boundary (two edits). Then reposition the cursor.
 
-(require "../ts.scm")
+(require "ts-utils.hx/ts.scm")
 (require "../lang.scm")
 (require "../traversal.scm")
 (require "../edit.scm")

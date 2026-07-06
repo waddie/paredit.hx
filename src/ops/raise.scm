@@ -8,7 +8,7 @@
 ;; range with that text as a single span-replace; place the cursor at the
 ;; enclosing form's old start.
 
-(require "../ts.scm")
+(require "ts-utils.hx/ts.scm")
 (require "../lang.scm")
 (require "../traversal.scm")
 (require "../edit.scm")

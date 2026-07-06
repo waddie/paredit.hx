@@ -1,7 +1,7 @@
 ;; pairs.scm — pairwise structural detection (maps, let-bindings, cond, ...).
 
 (require "helix/treesitter.scm")
-(require "ts.scm")
+(require "ts-utils.hx/ts.scm")
 (require "lang.scm")
 (require "traversal.scm")
 

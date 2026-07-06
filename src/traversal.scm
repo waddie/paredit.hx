@@ -1,6 +1,7 @@
 ;; traversal.scm — structural navigation over the tree.
 
-(require "ts.scm")
+(require "ts-utils.hx/ts.scm")
+(require "ts-utils.hx/nav.scm") ; named-siblings, node-index, next/prev-named-sibling
 (require "lang.scm")
 
 (provide named-siblings
@@ -19,40 +20,11 @@
 ;;;; ---------------------------------------------------------------------------
 ;;;; Sibling navigation
 ;;;; ---------------------------------------------------------------------------
-
-;;@doc
-;; The named children of `node`'s parent (i.e. `node`'s sibling cohort), or '()
-;; if it has no parent.
-(define (named-siblings node)
-  (let ([parent (tsnode-parent node)])
-    (if parent (tsnode-named-children parent) '())))
-
-;;@doc
-;; Zero-based index of `node` within `siblings` (compared by `equal?`), or #f.
-(define (node-index node siblings)
-  (let loop ([i 0] [xs siblings])
-    (cond
-      [(null? xs) #f]
-      [(equal? node (car xs)) i]
-      [else (loop (+ i 1) (cdr xs))])))
-
-;;@doc
-;; The next named sibling of `node`, or #f.
-(define (next-named-sibling node)
-  (let* ([siblings (named-siblings node)]
-         [idx (node-index node siblings)])
-    (if (and idx (< (+ idx 1) (length siblings)))
-      (list-ref siblings (+ idx 1))
-      #f)))
-
-;;@doc
-;; The previous named sibling of `node`, or #f.
-(define (prev-named-sibling node)
-  (let* ([siblings (named-siblings node)]
-         [idx (node-index node siblings)])
-    (if (and idx (> idx 0))
-      (list-ref siblings (- idx 1))
-      #f)))
+;;
+;; The generic sibling primitives (named-siblings, node-index,
+;; next-named-sibling, prev-named-sibling) now live in ts-utils.hx/nav.scm; they
+;; are required above and re-provided here for existing callers. The
+;; comment-skipping variants below are language-aware and stay in paredit.
 
 ;;@doc
 ;; The next named sibling of `node` that is not a comment in `lang`, or #f.

@@ -8,7 +8,7 @@
 ;; get-form-edges; emit two edits — delete the delimiter at its current position
 ;; and reinsert it just past/before the sibling. Then reposition the cursor.
 
-(require "../ts.scm")
+(require "ts-utils.hx/ts.scm")
 (require "../lang.scm")
 (require "../traversal.scm")
 (require "../edit.scm")

@@ -8,7 +8,7 @@
 ;; calling `register-language!`. `lang.scm` exposes the lookup + the form?/
 ;; comment? predicates the rest of the codebase uses.
 
-(require "ts.scm")
+(require "ts-utils.hx/ts.scm")
 
 (provide
   ;; Steel `provide` has no `struct-out`; list the struct's generated bindings.

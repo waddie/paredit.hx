@@ -8,7 +8,7 @@
 ;; (comment-skipping); swap their text via edit.scm `swap-ranges`. The cursor
 ;; follows the moved node, preserving its offset within that node.
 
-(require "../ts.scm")
+(require "ts-utils.hx/ts.scm")
 (require "../lang.scm")
 (require "../traversal.scm")
 (require "../edit.scm")

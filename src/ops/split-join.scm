@@ -1,6 +1,6 @@
 ;; ops/split-join.scm — split one form/string into two, and join two into one.
 
-(require "../ts.scm")
+(require "ts-utils.hx/ts.scm")
 (require "../lang.scm")
 (require "../traversal.scm")
 (require "../edit.scm")
